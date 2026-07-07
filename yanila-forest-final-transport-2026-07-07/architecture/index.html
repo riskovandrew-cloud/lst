@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Архитектура: северный характер — Янила Форест</title>
+    <style>
+      :root {
+        --paper: #f2eee9;
+        --paper-deep: #e7e1da;
+        --ink: #293241;
+        --text: #565656;
+        --muted: #7a7771;
+        --line: #cec7bf;
+        --white: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          linear-gradient(90deg, rgba(41, 50, 65, 0.055) 1px, transparent 1px) 0 0 / 84px 84px,
+          linear-gradient(180deg, var(--paper) 0%, #f8f5f1 56%, var(--paper-deep) 100%);
+        color: var(--text);
+        font-family: "Avenir Next", "Montserrat", "Manrope", "Helvetica Neue", Arial, sans-serif;
+        font-weight: 300;
+        letter-spacing: 0;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: clamp(24px, 4vw, 46px) 0 clamp(42px, 7vw, 96px);
+      }
+
+      .top-menu {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: clamp(32px, 5vw, 58px);
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .menu-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 9px 14px;
+        border: 1px solid rgba(41, 50, 65, 0.2);
+        color: var(--ink);
+        text-decoration: none;
+        text-transform: uppercase;
+        font-size: 13px;
+        line-height: 1.1;
+        transition:
+          background 180ms ease,
+          color 180ms ease,
+          border-color 180ms ease,
+          transform 180ms ease;
+      }
+
+      .menu-link:hover,
+      .menu-link.is-active {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: var(--white);
+        transform: translateY(-1px);
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: minmax(280px, 560px) minmax(0, 1fr);
+        gap: clamp(28px, 5vw, 68px);
+        align-items: start;
+      }
+
+      .slider {
+        position: relative;
+        width: min(100%, 560px);
+        margin: 0 auto;
+        align-self: start;
+      }
+
+      .viewport {
+        overflow: hidden;
+        aspect-ratio: 4 / 3;
+        background: #ebe7e2;
+        box-shadow: 0 30px 70px rgba(41, 50, 65, 0.16);
+      }
+
+      .track {
+        display: flex;
+        height: 100%;
+        transform: translateX(0);
+        transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .slide {
+        flex: 0 0 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      .slide img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .nav {
+        position: absolute;
+        top: 50%;
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        border: 1px solid rgba(41, 50, 65, 0.18);
+        border-radius: 50%;
+        background: rgba(248, 245, 241, 0.86);
+        color: var(--ink);
+        cursor: pointer;
+        transform: translateY(-50%);
+        transition:
+          background 180ms ease,
+          transform 180ms ease,
+          border-color 180ms ease;
+      }
+
+      .nav:hover {
+        background: var(--white);
+        border-color: rgba(41, 50, 65, 0.42);
+        transform: translateY(-50%) scale(1.04);
+      }
+
+      .nav:focus-visible,
+      .dot:focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 4px;
+      }
+
+      .nav svg {
+        width: 23px;
+        height: 23px;
+        stroke-width: 1.35;
+      }
+
+      .prev {
+        left: -24px;
+      }
+
+      .next {
+        right: -24px;
+      }
+
+      .dots {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 22px;
+      }
+
+      .dot {
+        width: clamp(24px, 7vw, 44px);
+        height: 16px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .dot::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 2px;
+        background: var(--line);
+        transition:
+          background 180ms ease,
+          transform 180ms ease;
+      }
+
+      .dot[aria-selected="true"]::before {
+        background: var(--ink);
+        transform: translateY(-2px);
+      }
+
+      .gallery-copy {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 28px;
+        min-height: 360px;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 22px;
+        color: var(--muted);
+        font-size: clamp(13px, 1.5vw, 15px);
+        text-transform: uppercase;
+      }
+
+      .kicker::before {
+        content: "";
+        width: 42px;
+        height: 1px;
+        background: var(--ink);
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--ink);
+        font-family: "History Pro", "Avenir Next", "Montserrat", "Manrope", "Helvetica Neue", Arial, sans-serif;
+        font-size: clamp(32px, 5vw, 64px);
+        line-height: 0.98;
+        font-weight: 200;
+        text-transform: uppercase;
+      }
+
+      .gallery-note {
+        max-width: 590px;
+        color: var(--muted);
+        font-family: "Cyntho Next", "Avenir Next", "Montserrat", "Manrope", "Helvetica Neue", Arial, sans-serif;
+        font-size: clamp(17px, 1.7vw, 23px);
+        font-weight: 400;
+        line-height: 1.42;
+      }
+
+      .gallery-note p {
+        margin: 0;
+      }
+
+      .gallery-note p + p {
+        margin-top: 1em;
+      }
+
+      .gallery-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: var(--ink);
+      }
+
+      .counter {
+        min-width: 64px;
+        font-size: 19px;
+      }
+
+      .progress {
+        width: min(250px, 42vw);
+        height: 1px;
+        background: var(--line);
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        display: block;
+        width: 16.666%;
+        height: 100%;
+        background: var(--ink);
+        transform-origin: left center;
+        transition: transform 360ms ease;
+      }
+
+      @media (max-width: 900px) {
+        .gallery {
+          grid-template-columns: 1fr;
+        }
+
+        .gallery-copy {
+          order: -1;
+          min-height: 0;
+        }
+
+        .slider {
+          width: min(100%, 620px);
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          width: min(100% - 22px, 1180px);
+          padding-top: 26px;
+        }
+
+        .top-menu {
+          gap: 8px;
+        }
+
+        .menu-link {
+          flex: 1 1 calc(50% - 8px);
+          justify-content: center;
+          min-height: 42px;
+          text-align: center;
+        }
+
+        h1 {
+          font-size: 36px;
+        }
+
+        .nav {
+          width: 42px;
+          height: 42px;
+        }
+
+        .prev {
+          left: 10px;
+        }
+
+        .next {
+          right: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <nav class="top-menu" aria-label="Разделы Янила Форест">
+        <a class="menu-link" href="../advantages/">Преимущества</a>
+        <a class="menu-link" href="../nature-inside-quarter/">Природа рядом</a>
+        <a class="menu-link is-active" href="../architecture/">Архитектура</a>
+        <a class="menu-link" href="../courtyard-environment/">Дворы</a>
+        <a class="menu-link" href="../entrance-group/">Входная группа</a>
+        <a class="menu-link" href="../layouts/">Планировки</a>
+        <a class="menu-link" href="../infrastructure/">Инфраструктура</a>
+        <a class="menu-link" href="../transport-accessibility/">Транспорт</a>
+        <a class="menu-link" href="../community-center/">Соседский центр</a>
+      </nav>
+
+      <section class="gallery" aria-labelledby="gallery-title">
+        <div class="slider" aria-roledescription="carousel" aria-label="Архитектура Янила Форест">
+          <div class="viewport">
+            <div class="track">
+              <figure class="slide">
+                <img src="../assets/architecture-slide-1.jpg" alt="Корпуса Янила Форест со стороны улицы" />
+              </figure>
+              <figure class="slide">
+                <img src="../assets/architecture-slide-2.jpg" alt="Вид на фасады Янила Форест с природным окружением" />
+              </figure>
+              <figure class="slide">
+                <img src="../assets/architecture-slide-3.jpg" alt="Корпуса Янила Форест с цветными фасадами" />
+              </figure>
+              <figure class="slide">
+                <img src="../assets/architecture-slide-4.jpg" alt="Дворовое пространство между корпусами Янила Форест" />
+              </figure>
+              <figure class="slide">
+                <img src="../assets/architecture-slide-5.jpg" alt="Коммерческие помещения на первом этаже Янила Форест" />
+              </figure>
+              <figure class="slide">
+                <img src="../assets/architecture-slide-6.jpg" alt="Внутренний двор и фасады Янила Форест" />
+              </figure>
+            </div>
+          </div>
+
+          <button class="nav prev" type="button" aria-label="Предыдущее изображение">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path d="M15 18 9 12l6-6" />
+            </svg>
+          </button>
+          <button class="nav next" type="button" aria-label="Следующее изображение">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+
+          <div class="dots" role="tablist" aria-label="Выбор изображения">
+            <button class="dot" type="button" role="tab" aria-selected="true" aria-label="Изображение 1"></button>
+            <button class="dot" type="button" role="tab" aria-selected="false" aria-label="Изображение 2"></button>
+            <button class="dot" type="button" role="tab" aria-selected="false" aria-label="Изображение 3"></button>
+            <button class="dot" type="button" role="tab" aria-selected="false" aria-label="Изображение 4"></button>
+            <button class="dot" type="button" role="tab" aria-selected="false" aria-label="Изображение 5"></button>
+            <button class="dot" type="button" role="tab" aria-selected="false" aria-label="Изображение 6"></button>
+          </div>
+        </div>
+
+        <div class="gallery-copy">
+          <div>
+            <p class="kicker">Янила Форест</p>
+            <h1 id="gallery-title">Архитектура: северный характер</h1>
+          </div>
+          <div class="gallery-note">
+            <p>
+              Архитектура Янила Форест поддерживает идею жизни в природном окружении. Фасады выполнены в лаконичном
+              скандинавском стиле: спокойные природные оттенки, сдержанные формы, отсылки к северным виллам и аккуратные
+              детали без визуального шума.
+            </p>
+            <p>
+              Дома здесь не уходят в чрезмерную высотность. Максимальная высота корпусов — до 12 этажей. Пространство
+              между домами организовано так, чтобы избежать ощущения плотной застройки и эффекта «окно в окно».
+            </p>
+            <p>Квартал выглядит камерным и спокойным, а сама среда воспринимается как продуманное жилое пространство.</p>
+          </div>
+          <div class="gallery-meta" aria-live="polite">
+            <span class="counter">1 / 6</span>
+            <span class="progress" aria-hidden="true"><span class="progress-bar"></span></span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const slider = document.querySelector(".slider");
+      const viewport = document.querySelector(".viewport");
+      const track = document.querySelector(".track");
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const dots = Array.from(document.querySelectorAll(".dot"));
+      const counter = document.querySelector(".counter");
+      const progress = document.querySelector(".progress-bar");
+      const prev = document.querySelector(".prev");
+      const next = document.querySelector(".next");
+      let current = 0;
+      let pointerStart = 0;
+      let pointerDelta = 0;
+
+      progress.style.width = `${100 / slides.length}%`;
+
+      function showSlide(index) {
+        current = (index + slides.length) % slides.length;
+        track.style.transform = `translateX(-${current * 100}%)`;
+        counter.textContent = `${current + 1} / ${slides.length}`;
+        progress.style.transform = `translateX(${current * 100}%)`;
+
+        dots.forEach((dot, dotIndex) => {
+          dot.setAttribute("aria-selected", String(dotIndex === current));
+        });
+      }
+
+      prev.addEventListener("click", () => showSlide(current - 1));
+      next.addEventListener("click", () => showSlide(current + 1));
+
+      dots.forEach((dot, index) => {
+        dot.addEventListener("click", () => showSlide(index));
+      });
+
+      slider.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") showSlide(current - 1);
+        if (event.key === "ArrowRight") showSlide(current + 1);
+      });
+
+      viewport.addEventListener("pointerdown", (event) => {
+        pointerStart = event.clientX;
+        pointerDelta = 0;
+        viewport.setPointerCapture(event.pointerId);
+      });
+
+      viewport.addEventListener("pointermove", (event) => {
+        if (!pointerStart) return;
+        pointerDelta = event.clientX - pointerStart;
+      });
+
+      viewport.addEventListener("pointerup", () => {
+        if (Math.abs(pointerDelta) > 44) {
+          showSlide(current + (pointerDelta < 0 ? 1 : -1));
+        }
+
+        pointerStart = 0;
+        pointerDelta = 0;
+      });
+    </script>
+  </body>
+</html>
